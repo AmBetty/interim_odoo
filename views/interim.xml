@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <record  id="view_res_partner_form_modified"  model="ir.ui.view">
+      <field  name="name">res.partner.form.modified</field>
+      <field  name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field  name="arch"  type="xml">
+        <xpath expr="//field[@name='category_id']" position="after">
+          <field name="num_id_card"  attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="date_of_issu" attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="start_time" attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="end_time" attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="beginning_hour" widget='float_time' attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="ending_hour" widget='float_time' attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="closing_time" attrs="{'invisible': [('company_type', '=', 'person')]}"/>
+          <field name="society_type" attrs="{'invisible': [('company_type', '=', 'person')]}"/>
+          <field name="card_id_type" attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="place_of_issu" attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="num_of_register" attrs="{'invisible': [('company_type', '=', 'person')]}"/>
+          <field name="country_of_residence" attrs="{'invisible': [('company_type', '=', 'company')]}"/>
+          <field name="fichier" filename="fname" widget="many2many_binary"/>
+        </xpath>
+        <xpath expr="//page[@name='sales_purchases']" position="after">
+          <page name="document" string="Documents">
+            <group string="Documents" name="doc">
+              <field name="document_associated"/>
+            </group>
+          </page>
+        </xpath>
+        <xpath expr="//page[@name='sales_purchases']" position="after">
+          <page name="responsible" string="Responsable" mode="kanban,tree">
+
+            <field name="child_id" mode="kanban,tree" context="{'default_responsible_id': active_id}">
+              <kanban>
+                <field name="color"/>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="type"/>
+                <field name="email"/>
+                <field name="is_company"/>
+                <field name="function"/>
+                <field name="phone"/>
+                <field name="street"/>
+                <field name="street2"/>
+                <field name="zip"/>
+                <field name="city"/>
+                <field name="country_id"/>
+                <field name="mobile"/>
+                <field name="fax"/>
+                <field name="state_id"/>
+                <field name="image"/>
+                <field name="lang"/>
+                <field name="comment"/>
+                <field name="customer"/>
+                <field name="display_name"/>
+                <templates>
+                  <t t-name="kanban-box">
+                    <t t-set="color" t-value="kanban_color(record.color.raw_value)"/>
+                    <div t-att-class="color + (record.title.raw_value == 1 ? ' oe_kanban_color_alert' : '') + ' oe_kanban_global_click'">
+                      <a t-if="!read_only_mode" type="delete" class="fa fa-times pull-right"/>
+                      <div class="o_kanban_image">
+                        <img t-if="record.image.raw_value" t-att-src="'data:image/png;base64,'+record.image.raw_value"/>
+                        <t t-if="!record.image.raw_value">
+                          <img t-if="record.type.raw_value === 'delivery'" t-att-src="_s + &quot;/base/static/src/img/truck.png&quot;"/>
+                          <img t-if="record.type.raw_value === 'invoice'" t-att-src="_s + &quot;/base/static/src/img/money.png&quot;"/>
+                          <t t-if="record.type.raw_value !== 'invoice' &amp;&amp; record.type.raw_value !== 'delivery'">
+                            <img t-if="record.is_company.raw_value === true" t-att-src="_s + &quot;/base/static/src/img/company_image.png&quot;"/>
+                            <img t-if="record.is_company.raw_value === false" t-att-src="_s + &quot;/base/static/src/img/avatar.png&quot;"/>
+                          </t>
+                        </t>
+                      </div>
+                      <div class="oe_kanban_details">
+                        <field name="name"/>
+                        <div t-if="record.function.raw_value"><field name="function"/></div>
+                        <div t-if="record.email.raw_value"><field name="email"/></div>
+                        <div t-if="record.type.raw_value != 'contact'">
+                          <div>
+                            <field name="zip"/>
+                            <field name="city"/>
+                          </div>
+                          <field t-if="record.state_id.raw_value" name="state_id"/>
+                          <field name="country_id"/>
+                        </div>
+                        <div t-if="record.phone.raw_value">Phone: <field name="phone"/></div>
+                        <div t-if="record.mobile.raw_value">Mobile: <field name="mobile"/></div>
+                        <div t-if="record.fax.raw_value">Fax: <field name="fax"/></div>
+                      </div>
+                    </div>
+                  </t>
+                </templates>
+              </kanban>
+              <form string="Responsable">
+                <sheet>
+                  <field name="image" widget="image" class="oe_avatar" options="{&quot;preview_image&quot;: &quot;image_medium&quot;, &quot;size&quot;: [90, 90]}"/>
+                  <div class="oe_title">
+                    <field name="is_company" invisible="1"/>
+                    <field name="commercial_partner_id" invisible="1"/>
+                    <field name="company_type" widget="radio" class="oe_edit_only" options="{'horizontal': true}"/>
+                    <h1>
+                      <field name="name" default_focus="1" placeholder="Name" attrs="{'required' : [('type', '=', 'contact')]}"/>
+                    </h1>
+                  </div>
+
+                  <group>
+                    <group>
+                      <field name="type"/>
+                      <label for="street" string="Address"/>
+                      <div class="o_address_format">
+                        <field name="street" placeholder="Street..." class="o_address_street" attrs="{'readonly': [('type', '=', 'contact')]}"/>
+                      </div>
+                      <field name="website" widget="url" placeholder="e.g. www.odoo.com"/>
+                    </group>
+                    <group>
+                      <field name="function" placeholder="e.g. Sales Director" attrs="{'invisible': [('is_company','=', True)]}"/>
+                      <field name="phone" widget="phone"/>
+                      <field name="mobile" widget="phone"/>
+
+                    </group>
+                  </group>
+                </sheet>
+              </form>
+            </field>
+
+
+          </page>
+        </xpath>
+
+      </field>
+    </record>
+
+
+    <record id="action_stagiaire_menu" model="ir.actions.act_window">
+      <field name="name">Stagiaire</field>
+      <field name="res_model">res.partner</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[('stagiare', '=', True)]</field>
+      <field name="context">{'default_stagiare': True}</field>
+    </record>
+
+    <record id="action_interimaire_menu" model="ir.actions.act_window">
+      <field name="name">Interim</field>
+      <field name="res_model">res.partner</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">[('interimaire', '=', True)]</field>
+      <field name="context">{'default_interimaire': True}</field>
+    </record>
+
+    <record id="action_repository_menu" model="ir.actions.act_window">
+      <field name="name">Répertoire</field>
+      <field name="res_model">directory.interim</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    <record id="view_directory_interim_tree" model="ir.ui.view">
+      <field name="name">directory.interim.tree</field>
+      <field name="model">directory.interim</field>
+      <field name="priority" eval="8" />
+      <field name="arch" type="xml">
+        <tree string="Document">
+          <field name="obligatoire" />
+          <field name="is_interim"/>
+          <field name="is_stagiaire"  />
+          <field name="repository_id" />
+        </tree>
+      </field>
+    </record>
+    <record id="view_directory_interim_form" model="ir.ui.view">
+      <field name="name">directory.interim.form</field>
+      <field name="model">directory.interim</field>
+      <field name="priority" eval="8" />
+      <field name="arch" type="xml">
+        <form string="Document">
+          <sheet>
+            <notebook colspan="4">
+              <page name="page_document" string="Ajouter votre fichier" >
+                <group col="4" colspan="4" name="document_detail" >
+                  <field name="obligatoire" />
+                  <field name="is_interim"/>
+                  <field name="is_stagiaire"  />
+                  <field name="repository_id" />
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_document_interim_tree" model="ir.ui.view">
+      <field name="name">document.interim.tree</field>
+      <field name="model">document.interim</field>
+      <field name="priority" eval="8" />
+      <field name="arch" type="xml">
+        <tree string="Document">
+          <field name="ir_attachement" />
+          <field name="directory_id"/>
+        </tree>
+      </field>
+    </record>
+    <record id="view_document_interim_form" model="ir.ui.view">
+      <field name="name">document.interim.form</field>
+      <field name="model">document.interim</field>
+      <field name="priority" eval="8" />
+      <field name="arch" type="xml">
+        <form string="Document">
+          <sheet>
+            <notebook colspan="4">
+              <page name="page_document" string="Ajouter votre fichier" >
+                <group col="4" colspan="4" name="document_detail" >
+                  <field name="directory_id"/>
+                  <field name="ir_attachement" />
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_responsible_tree" model="ir.ui.view">
+      <field name="name">res.res.tree</field>
+      <field name="model">res.res</field>
+      <field name="priority" eval="8" />
+      <field name="arch" type="xml">
+        <tree string="Responsable">
+          <field name="responsible_id"/>
+        </tree>
+      </field>
+    </record>
+    <record id="viewresponsible_form" model="ir.ui.view">
+      <field name="name">res.res.form</field>
+      <field name="model">res.res</field>
+      <field name="priority" eval="8" />
+      <field name="arch" type="xml">
+        <form string="Document">
+          <sheet>
+            <notebook colspan="4">
+              <page name="page_responsible" string="Ajouter votre fichier" >
+                <group col="4" colspan="4" name="responsible_detail" >
+                  <field name="responsible_id"/>
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+
+    <record id="view_responsable_tree" model="ir.ui.view">
+      <field name="name">responsaible.responsaible.tree</field>
+      <field name="model">res.partner</field>
+      <field name="priority" eval="8" />
+      <field name="arch" type="xml">
+        <tree string="Document">
+          <field name="child_id"/>
+        </tree>
+      </field>
+    </record>
+
+    <menuitem name="Intérim" id="interim_menu"/>
+    <menuitem name="Liste des stagiaires" id="stagiaire_child_menu" action="action_stagiaire_menu"
+      parent="interim_menu" sequence="2" />
+      <menuitem name="Liste des Intérimaire" id="interimaire_child_menu" action="action_interimaire_menu"
+        parent="interim_menu" sequence="2" />
+        <menuitem name="Configuration" id="configuration" parent="interim_menu" action="action_repository_menu" />
+        <menuitem name="Liste des responsables" id="responsable_menu" action=""
+          parent="configuration" sequence="2" />
+
+        </data>
+      </odoo>
